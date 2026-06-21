@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рыбная Точка. Админка</title>
+    <style>
+        :root {
+            --bg: #1f2f39;
+            --card: #ffffff;
+            --text: #1f2f39;
+            --muted: #6b7280;
+            --accent: #c5a059;
+            --border: #e5e7eb;
+            --danger: #dc2626;
+            --soft: #f4f6f8;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--soft);
+            color: var(--text);
+        }
+
+        .wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .topbar {
+            background: var(--bg);
+            color: white;
+            padding: 18px 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        .topbar .meta {
+            font-size: 13px;
+            opacity: .85;
+            word-break: break-all;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.04);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 8px;
+            white-space: pre-line;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.04);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .two-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--muted);
+        }
+
+        input, textarea, select, button {
+            font: inherit;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 14px;
+            background: white;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            border: none;
+            background: var(--bg);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .btn.secondary {
+            background: #eef2f7;
+            color: var(--text);
+        }
+
+        .btn.danger {
+            background: var(--danger);
+        }
+
+        .btn.gold {
+            background: var(--accent);
+            color: #1f2f39;
+            font-weight: 700;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            font-size: 13px;
+            margin-top: 8px;
+            color: var(--muted);
+            white-space: pre-line;
+        }
+
+        .products,
+        .orders-list,
+        .top-products-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .product,
+        .order-item,
+        .top-product-item {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            background: white;
+        }
+
+        .product {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .product img,
+        .img-ph {
+            width: 110px;
+            height: 110px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #f1f1f1;
+        }
+
+        .img-ph {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .product h3,
+        .order-item h3,
+        .top-product-item h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .product .meta,
+        .order-meta,
+        .top-product-meta {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .product .price,
+        .order-sum {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 6px 10px;
+            background: #eef2f7;
+            border-radius: 999px;
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        @media (max-width: 1100px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .two-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product {
+                grid-template-columns: 1fr;
+            }
+
+            .product img,
+            .img-ph {
+                width: 100%;
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="topbar">
+        <h1>Админка каталога</h1>
+        <div class="meta">
+            Backend: <span id="backend-label">—</span><br>
+            Прямая ссылка: <span id="admin-link-label">https://fish123.ru/admin.html</span>
+        </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-label">Загрузка</div><div class="stat-value">—</div></div>
+        <div class="stat-card"><div class="stat-label">Загрузка</div><div class="stat-value">—</div></div>
+        <div class="stat-card"><div class="stat-label">Загрузка</div><div class="stat-value">—</div></div>
+        <div class="stat-card"><div class="stat-label">Загрузка</div><div class="stat-value">—</div></div>
+    </div>
+
+    <div class="two-cards">
+        <div class="card">
+            <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h2 style="margin:0;">Последние заказы</h2>
+                <button class="btn secondary" onclick="loadStats()">Обновить статистику</button>
+            </div>
+            <div class="status" id="orders-status"></div>
+            <div class="orders-list" id="orders-list"></div>
+        </div>
+
+        <div class="card">
+            <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h2 style="margin:0;">Топ товаров</h2>
+                <button class="btn secondary" onclick="loadStats()">Обновить</button>
+            </div>
+            <div class="status" id="top-products-status"></div>
+            <div class="top-products-list" id="top-products-list"></div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2 id="form-title">Добавить товар</h2>
+
+            <input type="hidden" id="product-id">
+
+            <label>Категория</label>
+            <input type="text" id="cat" placeholder="Например. Рыба">
+
+            <label>Название</label>
+            <input type="text" id="name" placeholder="Название товара">
+
+            <label>Цена</label>
+            <input type="number" id="price" placeholder="0">
+
+            <label>Фасовка</label>
+            <input type="text" id="pack" placeholder="Например. 1 кг">
+
+            <label>Описание</label>
+            <textarea id="desc" placeholder="Описание товара"></textarea>
+
+            <label>КБЖУ</label>
+            <textarea id="kbju" placeholder="КБЖУ"></textarea>
+
+            <label>Картинка</label>
+            <input type="file" id="image-file" accept=".jpg,.jpeg,.png,.webp,.gif">
+
+            <div class="row">
+                <button class="btn gold" onclick="saveProduct()">Сохранить товар</button>
+                <button class="btn secondary" onclick="resetForm()">Сбросить</button>
+            </div>
+
+            <div class="status" id="form-status"></div>
+        </div>
+
+        <div class="card">
+            <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h2 style="margin:0;">Товары</h2>
+                <div class="row">
+                    <button class="btn secondary" onclick="loadStats()">Обновить статистику</button>
+                    <button class="btn secondary" onclick="loadProducts()">Обновить товары</button>
+                </div>
+            </div>
+
+            <div class="status" id="list-status"></div>
+            <div class="products" id="products-list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const APP_VERSION = "fish123-admin-images-fix-2026-06-21";
+const urlParams = new URLSearchParams(window.location.search);
+
+function normalizeBackendUrl(value) {
+    return String(value || "").trim().replace(/\/+$/, "");
+}
+
+const DEFAULT_BACKEND_URL = "https://api.fish123.ru";
+
+const BACKEND_URL =
+    normalizeBackendUrl(urlParams.get("backend")) ||
+    normalizeBackendUrl(window.BACKEND_URL) ||
+    DEFAULT_BACKEND_URL;
+
+localStorage.setItem("FISH_BACKEND_URL", BACKEND_URL);
+document.getElementById("backend-label").textContent = BACKEND_URL;
+
+const ADMIN_DIRECT_URL = `https://fish123.ru/admin.html?backend=${encodeURIComponent(BACKEND_URL)}`;
+const adminLinkLabel = document.getElementById("admin-link-label");
+if (adminLinkLabel) adminLinkLabel.textContent = ADMIN_DIRECT_URL;
+
+function setStatus(id, text, isError = false) {
+    const el = document.getElementById(id);
+    el.textContent = text || "";
+    el.style.color = isError ? "#dc2626" : "#6b7280";
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function formatMoney(value) {
+    return `${Number(value || 0).toLocaleString("ru-RU")} ₽`;
+}
+
+function formatPercent(value) {
+    return `${Number(value || 0).toLocaleString("ru-RU", { maximumFractionDigits: 2 })}%`;
+}
+
+function formatDate(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString("ru-RU");
+}
+
+function normalizeImagePath(src) {
+    return String(src || "").trim().replace(/^\.?\//, "").replace(/^\/+/, "");
+}
+
+function withVersion(url) {
+    const sep = url.includes("?") ? "&" : "?";
+    return `${url}${sep}v=${encodeURIComponent(APP_VERSION)}`;
+}
+
+function resolveImage(src) {
+    const value = String(src || "").trim();
+    if (!value) return "";
+
+    if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("data:")) {
+        return value;
+    }
+
+    if (value.startsWith("/uploads/") || value.startsWith("/static/")) {
+        return withVersion(`${BACKEND_URL}${value}`);
+    }
+
+    if (value.startsWith("uploads/") || value.startsWith("static/")) {
+        return withVersion(`${BACKEND_URL}/${value}`);
+    }
+
+    return withVersion(`${BACKEND_URL}/static/${normalizeImagePath(value)}`);
+}
+
+async function request(path, options = {}) {
+    const url = `${BACKEND_URL}${path}`;
+
+    const headers = {
+        ...(options.headers || {})
+    };
+
+    let response;
+    try {
+        response = await fetch(url, {
+            method: options.method || "GET",
+            mode: "cors",
+            credentials: "omit",
+            cache: "no-store",
+            headers,
+            body: options.body
+        });
+    } catch (error) {
+        throw new Error(`Не удалось подключиться к backend: ${BACKEND_URL}`);
+    }
+
+    const raw = await response.text();
+
+    let parsed = null;
+    try {
+        parsed = raw ? JSON.parse(raw) : null;
+    } catch {
+        parsed = raw;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            (parsed && parsed.detail) ||
+            (parsed && parsed.message) ||
+            parsed ||
+            `HTTP ${response.status}`
+        );
+    }
+
+    return parsed;
+}
+
+async function apiGet(path) {
+    return request(path, { method: "GET" });
+}
+
+async function apiPost(path, payload, isFormData = false) {
+    if (isFormData) {
+        return request(path, {
+            method: "POST",
+            body: payload
+        });
+    }
+
+    return request(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+}
+
+async function apiPut(path, payload) {
+    return request(path, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+}
+
+async function apiDelete(path) {
+    return request(path, { method: "DELETE" });
+}
+
+function resetForm() {
+    document.getElementById("product-id").value = "";
+    document.getElementById("cat").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("pack").value = "";
+    document.getElementById("desc").value = "";
+    document.getElementById("kbju").value = "";
+    document.getElementById("image-file").value = "";
+    document.getElementById("form-title").textContent = "Добавить товар";
+    setStatus("form-status", "");
+}
+
+function fillForm(product) {
+    document.getElementById("product-id").value = product.id ?? "";
+    document.getElementById("cat").value = product.cat || "";
+    document.getElementById("name").value = product.name || "";
+    document.getElementById("price").value = product.price ?? "";
+    document.getElementById("pack").value = product.pack || "";
+    document.getElementById("desc").value = product.desc || "";
+    document.getElementById("kbju").value = product.kbju || "";
+    document.getElementById("image-file").value = "";
+    document.getElementById("form-title").textContent = `Редактирование товара #${product.id}`;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function pickUploadedImagePath(uploaded) {
+    if (!uploaded || typeof uploaded !== "object") return "";
+    return (
+        uploaded.url ||
+        uploaded.path ||
+        uploaded.file_url ||
+        uploaded.file_path ||
+        uploaded.location ||
+        uploaded.src ||
+        uploaded.image ||
+        uploaded.data?.url ||
+        uploaded.data?.path ||
+        ""
+    );
+}
+
+async function uploadImageIfNeeded() {
+    const fileInput = document.getElementById("image-file");
+    const file = fileInput.files && fileInput.files[0];
+
+    if (!file) return "";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const uploaded = await apiPost("/api/admin/upload-image", formData, true);
+    const imagePath = pickUploadedImagePath(uploaded);
+
+    if (!imagePath) {
+        throw new Error("Файл загрузился, но backend не вернул путь картинки");
+    }
+
+    return imagePath;
+}
+
+async function saveProduct() {
+    const productId = document.getElementById("product-id").value.trim();
+
+    try {
+        setStatus("form-status", "Сохраняем товар...");
+
+        const uploadedImagePath = await uploadImageIfNeeded();
+
+        const basePayload = {
+            cat: document.getElementById("cat").value.trim(),
+            name: document.getElementById("name").value.trim(),
+            price: Number(document.getElementById("price").value || 0),
+            pack: document.getElementById("pack").value.trim(),
+            desc: document.getElementById("desc").value.trim(),
+            kbju: document.getElementById("kbju").value.trim()
+        };
+
+        if (!basePayload.cat || !basePayload.name || !basePayload.price) {
+            throw new Error("Заполни категорию, название и цену");
+        }
+
+        if (productId) {
+            const currentProducts = await apiGet("/api/admin/products");
+            const oldProduct = currentProducts.find(item => String(item.id) === String(productId));
+
+            if (!oldProduct) {
+                throw new Error("Товар для обновления не найден");
+            }
+
+            const payload = {
+                ...oldProduct,
+                ...basePayload,
+                image: uploadedImagePath || oldProduct.image || ""
+            };
+
+            await apiPut(`/api/admin/products/${productId}`, payload);
+            setStatus("form-status", "Товар обновлен");
+        } else {
+            const payload = {
+                ...basePayload,
+                image: uploadedImagePath || ""
+            };
+
+            await apiPost("/api/admin/products", payload);
+            setStatus("form-status", "Товар добавлен");
+        }
+
+        resetForm();
+        await loadProducts();
+        await loadStats();
+    } catch (e) {
+        setStatus("form-status", e.message, true);
+    }
+}
+
+async function deleteProduct(id) {
+    if (!confirm("Удалить товар?")) return;
+
+    try {
+        await apiDelete(`/api/admin/products/${id}`);
+        await loadProducts();
+        await loadStats();
+    } catch (e) {
+        alert("Не удалось удалить товар.\n\n" + e.message);
+    }
+}
+
+function renderStats(summary) {
+    const statsGrid = document.getElementById("stats-grid");
+    const cards = [
+        {
+            label: "Посещения",
+            value: summary.unique_sessions_count,
+            sub: `Всего визитов: ${summary.visits_count}\nУникальных пользователей: ${summary.unique_visitor_users_count}`
+        },
+        {
+            label: "Собранные корзины",
+            value: summary.cart_events_count,
+            sub: `Пользователей с корзиной: ${summary.cart_users_count}\nБез заказа: ${summary.cart_not_ordered_count}`
+        },
+        {
+            label: "Заказы",
+            value: summary.orders_count,
+            sub: `Покупателей: ${summary.ordered_users_count}\nТоваров в каталоге: ${summary.products_count}`
+        },
+        {
+            label: "Выручка",
+            value: formatMoney(summary.total_order_revenue),
+            sub: `Средний чек: ${formatMoney(summary.average_order_value)}\nСписано бонусов: ${formatMoney(summary.total_bonus_used)}`
+        },
+        {
+            label: "Корзины на сумму",
+            value: formatMoney(summary.total_cart_value),
+            sub: `Событий корзины: ${summary.cart_events_count}`
+        },
+        {
+            label: "Конверсия из визитов",
+            value: formatPercent(summary.conversion_from_visits_percent),
+            sub: `Заказы / уникальные сессии`
+        },
+        {
+            label: "Конверсия из корзин",
+            value: formatPercent(summary.conversion_from_carts_percent),
+            sub: `Заказы / события корзины`
+        },
+        {
+            label: "Заказы в аналитике",
+            value: summary.analytics_orders_count,
+            sub: `Системно зафиксированных заказов`
+        }
+    ];
+
+    statsGrid.innerHTML = cards.map(card => `
+        <div class="stat-card">
+            <div class="stat-label">${escapeHtml(card.label)}</div>
+            <div class="stat-value">${escapeHtml(String(card.value))}</div>
+            <div class="stat-sub">${escapeHtml(card.sub)}</div>
+        </div>
+    `).join("");
+}
+
+function renderRecentOrders(orders) {
+    const root = document.getElementById("orders-list");
+    if (!orders.length) {
+        root.innerHTML = `<div class="status">Заказов пока нет</div>`;
+        return;
+    }
+
+    root.innerHTML = orders.map(order => `
+        <div class="order-item">
+            <h3>${escapeHtml(order.public_code || "—")}</h3>
+            <div class="order-meta">Дата: ${escapeHtml(formatDate(order.created_at))}</div>
+            <div class="order-meta">Клиент: ${escapeHtml(order.user_name || "Без имени")} / ${escapeHtml(order.user_id || "—")}</div>
+            <div class="order-meta">Телефон: ${escapeHtml(order.phone || "—")}</div>
+            <div class="order-meta">Позиций: ${escapeHtml(String(order.items_count || 0))}</div>
+            <div class="order-sum">${escapeHtml(formatMoney(order.total || 0))}</div>
+            <div class="row">
+                <span class="pill">${escapeHtml(order.status_text || "—")}</span>
+                <span class="pill">Бонусы: ${escapeHtml(formatMoney(order.bonus_used || 0))}</span>
+            </div>
+        </div>
+    `).join("");
+}
+
+function renderTopProducts(items) {
+    const root = document.getElementById("top-products-list");
+    if (!items.length) {
+        root.innerHTML = `<div class="status">Продаж пока нет</div>`;
+        return;
+    }
+
+    root.innerHTML = items.map((item, index) => `
+        <div class="top-product-item">
+            <h3>#${index + 1} ${escapeHtml(item.name || "Без названия")}</h3>
+            <div class="top-product-meta">Продано штук: ${escapeHtml(String(item.qty || 0))}</div>
+            <div class="top-product-meta">Выручка: ${escapeHtml(formatMoney(item.revenue || 0))}</div>
+        </div>
+    `).join("");
+}
+
+async function loadStats() {
+    try {
+        setStatus("orders-status", "Загрузка статистики...");
+        setStatus("top-products-status", "Загрузка статистики...");
+        const stats = await apiGet("/api/admin/stats");
+        renderStats(stats.summary || {});
+        renderRecentOrders(stats.recent_orders || []);
+        renderTopProducts(stats.top_products || []);
+        setStatus("orders-status", "");
+        setStatus("top-products-status", "");
+    } catch (e) {
+        setStatus("orders-status", "Не удалось загрузить статистику.\n" + e.message, true);
+        setStatus("top-products-status", "Не удалось загрузить статистику.\n" + e.message, true);
+    }
+}
+
+async function loadProducts() {
+    try {
+        setStatus("list-status", "Загрузка товаров...");
+        const products = await apiGet("/api/admin/products");
+        const list = document.getElementById("products-list");
+
+        if (!products.length) {
+            list.innerHTML = `<div class="status">Товаров пока нет</div>`;
+            setStatus("list-status", "");
+            return;
+        }
+
+        list.innerHTML = products.map(product => {
+            const imageUrl = resolveImage(product.image);
+            const imageBlock = imageUrl
+                ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(product.name)}">`
+                : `<div class="img-ph">Нет фото</div>`;
+
+            const safeProduct = JSON.stringify(product).replace(/'/g, "&apos;");
+
+            return `
+                <div class="product">
+                    <div>${imageBlock}</div>
+                    <div>
+                        <h3>${escapeHtml(product.name)}</h3>
+                        <div class="meta">Категория: ${escapeHtml(product.cat || "—")}</div>
+                        <div class="meta">Фасовка: ${escapeHtml(product.pack || "—")}</div>
+                        <div class="price">${Number(product.price || 0)} ₽</div>
+                        <div class="meta">${escapeHtml(product.desc || "")}</div>
+                        <div class="row" style="margin-top:10px;">
+                            <button class="btn secondary" onclick='fillForm(${safeProduct})'>Редактировать</button>
+                            <button class="btn danger" onclick="deleteProduct(${Number(product.id)})">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        setStatus("list-status", "");
+    } catch (e) {
+        setStatus("list-status", "Не удалось загрузить товары.\n" + e.message, true);
+    }
+}
+
+async function init() {
+    try {
+        await apiGet("/api/health");
+        await Promise.all([loadProducts(), loadStats()]);
+    } catch (e) {
+        setStatus("list-status", "Backend недоступен.\n" + e.message, true);
+        setStatus("orders-status", "Backend недоступен.\n" + e.message, true);
+        setStatus("top-products-status", "Backend недоступен.\n" + e.message, true);
+    }
+}
+
+init();
+</script>
+</body>
+</html>
